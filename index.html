@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎁 Birthday</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+    background:#05050a;
+    font-family: system-ui, "Noto Sans Kannada", sans-serif;
+    overflow:hidden;
+    color:#fff;
+}
+#container{position:fixed;inset:0}
+#ui{position:fixed;inset:0;pointer-events:none}
+
+/* Hint */
+#hint{
+    position:absolute;
+    bottom:25px;
+    left:50%;
+    transform:translateX(-50%);
+    padding:14px 28px;
+    background:rgba(0,0,0,.6);
+    border-radius:40px;
+    backdrop-filter:blur(10px);
+    font-size:14px;
+    pointer-events:auto;
+}
+
+/* Message */
+.message{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    opacity:0;
+    pointer-events:none;
+    transition:.6s;
+}
+.message.active{opacity:1;pointer-events:auto}
+
+.card{
+    width:min(92%,820px);
+    max-height:85vh;
+    padding:40px;
+    border-radius:22px;
+    background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.04));
+    backdrop-filter:blur(22px);
+    box-shadow:0 30px 100px rgba(255,80,150,.45);
+    overflow-y:auto;
+}
+
+.card h1{
+    text-align:center;
+    font-size:2.6rem;
+    margin-bottom:20px;
+    background:linear-gradient(45deg,#ff4f8b,#ffd36a,#4fdcff);
+    background-clip:text;
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.card pre{
+    white-space:pre-wrap;
+    font-size:1.1rem;
+    line-height:1.8;
+    text-align:center;
+}
+
+.close{
+    position:absolute;
+    top:18px;
+    right:18px;
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    border:none;
+    background:rgba(255,80,150,.3);
+    color:#fff;
+    cursor:pointer;
+}
+
+/* CONFETTI */
+.confetti{
+    position:fixed;
+    width:10px;
+    height:14px;
+    top:-20px;
+    pointer-events:none;
+    z-index:999;
+    opacity:.9;
+}
+</style>
+</head>
+
+<body>
+
+<div id="container"></div>
+
+<div id="ui">
+    <div id="hint">🎁 Click the gift 3 times</div>
+
+    <div class="message" id="msg">
+        <div class="card">
+            <button class="close" onclick="closeMsg()">✕</button>
+            <h1>🌸 ಹುಟ್ಟುಹಬ್ಬದ ಹಾರ್ದಿಕ ಶುಭಾಶಯಗಳು ಪೂಜಾ 🌸</h1>
+            <pre>
+ಪೂಜಾ ಎಂಬ ನಾಮದಲ್ಲೇ ಹರಿದಾಡುವ ಪಾವಿತ್ರ್ಯ,
+ನಿನ್ನ ನಗುವಲ್ಲೇ ಮರುಳಾಗುವ ಜಗದ ಸೌಮ್ಯ ಸತ್ಯ.
+ಸರಳತೆಯೊಳಗೆ ಅಡಗಿರುವ ಅಪಾರ ಮಹಿಮೆ,
+ಪ್ರೀತಿ, ಸೌಮ್ಯತೆ, ನಗುವಿನ ಬೆಳಕಿನಲ್ಲಿ ಅರಳಿದ ನೀನೇ ಆ ಭಾವದ ಪ್ರತಿಮೆ.
+
+ಮೌನದಲ್ಲೂ ಮಾತಾಡುವ ಮಮತೆಯ ಮಿಡಿತ,
+ನಿನ್ನ ಹೃದಯವೇ ದಯೆಯ ದೀಪದ ಶಾಶ್ವತ ಜ್ಯೋತಿತ.
+ಮುದ್ದತೆಯೇ ನಿನ್ನ ಸಹಜ ಅಲಂಕಾರ,
+ಕರುಣೆಯೇ ನಿನ್ನ ಆತ್ಮದ ನಿಜವಾದ ಶೃಂಗಾರ.
+
+ಲೋಕ ಎಷ್ಟೇ ಕಠಿಣವಾಗಿ ಬದಲಾಗುತ್ತಾ ಹೋದರೂ,
+ನಿನ್ನ ಮನಸು ಮಾತ್ರ ಹೂವಿನಂತೆ ಕೋಮಲವಾಗಿಯೇ ಉಳಿಯಲಿ ಸದಾ.
+ಇನ್ನೊಬ್ಬರ ನೋವನ್ನು ನಿನ್ನದಾಗಿ ಕಾಣುವ ಮನಸು,
+ಸಹಾಯಕ್ಕೆ ಕೈಚಾಚುವ ನಿನ್ನ ಗುಣವೇ ಅಪೂರ್ವ ಅನುಭವ.
+
+ಈ ವಿಶೇಷ ಹುಟ್ಟುಹಬ್ಬದ ಶುಭ ಕ್ಷಣದಲ್ಲಿ,
+ನಿನ್ನ ಕನಸುಗಳಿಗೆ ಆಕಾಶವೇ ಗಡಿಗಳಾಗಲಿ.
+ನಿನ್ನ ಜೀವನ ಹೂವಿನ ತೋಟವಾಗಿ ಸದಾ ಅರಳಲಿ,
+ಸಂತೋಷ, ಶಾಂತಿ, ಪ್ರೀತಿ ಎಂದೆಂದಿಗೂ ನಿನ್ನ ಸಂಗಾತಿಯಾಗಲಿ 🌷
+
+✨ ಹ್ಯಾಪಿ ಬರ್ತ್‌ಡೇ ಪೂಜಾ ✨
+            </pre>
+        </div>
+    </div>
+</div>
+
+<audio id="music" loop>
+    <source src="https://assets.mixkit.co/music/preview/mixkit-happy-birthday-to-you-443.mp3">
+</audio>
+
+<script>
+/* THREE SETUP */
+let scene,camera,renderer,controls;
+let gift,lidGroup,glowLight;
+let clicks=0,opened=false;
+
+scene=new THREE.Scene();
+scene.fog=new THREE.Fog(0x05050a,20,160);
+
+camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,300);
+camera.position.set(0,7,22);
+
+renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(devicePixelRatio);
+document.getElementById("container").appendChild(renderer.domElement);
+
+controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;
+
+/* Lights */
+scene.add(new THREE.AmbientLight(0xffffff,.35));
+const key=new THREE.PointLight(0xffffff,1.8,120);
+key.position.set(10,15,10);
+scene.add(key);
+
+/* Glow */
+glowLight=new THREE.PointLight(0xffd36a,0,40);
+glowLight.position.set(0,4,0);
+scene.add(glowLight);
+
+/* Materials */
+const boxMat=new THREE.MeshStandardMaterial({color:0xff3b6f,roughness:.45});
+const ribbonMat=new THREE.MeshStandardMaterial({color:0x4fdcff});
+const bowMat=new THREE.MeshStandardMaterial({color:0xffd36a});
+
+/* Gift */
+gift=new THREE.Group();
+gift.add(new THREE.Mesh(new THREE.BoxGeometry(6,3.5,6),boxMat));
+
+lidGroup=new THREE.Group();
+const lid=new THREE.Mesh(new THREE.BoxGeometry(6.4,1.1,6.4),boxMat);
+lid.position.y=2.3;
+lidGroup.add(lid);
+
+lidGroup.add(new THREE.Mesh(new THREE.BoxGeometry(.7,1.15,6.6),ribbonMat));
+lidGroup.add(new THREE.Mesh(new THREE.BoxGeometry(6.6,1.15,.7),ribbonMat));
+
+const loop1=new THREE.Mesh(new THREE.TorusGeometry(.9,.25,16,32),bowMat);
+loop1.rotation.x=Math.PI/2;
+loop1.position.set(-.9,3.1,0);
+lidGroup.add(loop1);
+
+const loop2=loop1.clone();
+loop2.position.x=.9;
+lidGroup.add(loop2);
+
+const knot=new THREE.Mesh(new THREE.SphereGeometry(.35,16,16),bowMat);
+knot.position.set(0,3.1,0);
+lidGroup.add(knot);
+
+gift.add(lidGroup);
+
+gift.add(new THREE.Mesh(new THREE.BoxGeometry(.7,3.6,6.2),ribbonMat));
+gift.add(new THREE.Mesh(new THREE.BoxGeometry(6.2,3.6,.7),ribbonMat));
+
+gift.position.y=3;
+scene.add(gift);
+
+/* Float */
+gsap.to(gift.position,{y:3.6,duration:2,yoyo:true,repeat:-1});
+
+/* Click logic */
+renderer.domElement.addEventListener("pointerdown",()=>{
+    if(opened) return;
+    clicks++;
+
+    gsap.fromTo(gift.rotation,{x:0,z:0},{
+        x:0.25+clicks*0.05,
+        z:0.25+clicks*0.05,
+        duration:.12,
+        yoyo:true,
+        repeat:1
+    });
+
+    document.getElementById("hint").textContent =
+        clicks<3 ? `🎁 ${3-clicks} more click(s)` : "✨ Opening…";
+
+    if(clicks===3){
+        opened=true;
+        openGift();
+    }
+});
+
+/* Open Gift */
+function openGift(){
+    const music=document.getElementById("music");
+    music.volume=0;
+    music.play();
+    gsap.to(music,{volume:.5,duration:3});
+
+    gsap.to(camera.position,{z:14,y:6,duration:2});
+    gsap.to(lidGroup.rotation,{x:-Math.PI/2,duration:2,ease:"back.out(1.6)"});
+    gsap.to(lidGroup.position,{y:6,duration:2});
+    gsap.to(glowLight,{intensity:3,duration:2,yoyo:true,repeat:-1});
+
+    setTimeout(()=>{
+        document.getElementById("msg").classList.add("active");
+        startConfetti();
+    },1600);
+}
+
+/* CONFETTI RAIN */
+function startConfetti(){
+    for(let i=0;i<160;i++){
+        const c=document.createElement("div");
+        c.className="confetti";
+        c.style.left=Math.random()*100+"vw";
+        c.style.backgroundColor=`hsl(${Math.random()*360},100%,60%)`;
+        document.body.appendChild(c);
+
+        gsap.to(c,{
+            y:window.innerHeight+100,
+            x:`+=${(Math.random()-.5)*200}`,
+            rotation:Math.random()*720,
+            duration:Math.random()*2+3,
+            ease:"power1.out",
+            onComplete:()=>c.remove()
+        });
+    }
+}
+
+/* UI */
+function closeMsg(){
+    document.getElementById("msg").classList.remove("active");
+}
+
+/* Resize */
+addEventListener("resize",()=>{
+    camera.aspect=innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
+});
+
+/* Loop */
+function animate(){
+    requestAnimationFrame(animate);
+    if(!opened) gift.rotation.y+=0.0025;
+    controls.update();
+    renderer.render(scene,camera);
+}
+animate();
+</script>
+
+</body>
+</html>
